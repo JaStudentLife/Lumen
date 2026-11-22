@@ -1,0 +1,275 @@
+// ─────────────────────────────────────────────────────────────────────────────
+//  Lumen app commands
+//
+//  In Lumen, type   <app> - <command> [argument]
+//      excel - new                 new blank workbook
+//      excel - new budget          creates Documents\budget.xlsx and opens it
+//      code - code                 new coding session (new folder in your projects folder, opened in VS Code)
+//      code - open my              pick a project; suggestions appear as you type
+//  Type "<app> -" to list everything an app can do. Tab autocompletes. "?" lists all apps with commands.
+//  Saving this file applies changes immediately. Comments and trailing commas are fine.
+//
+//  App entry:   "name", "match" (words typed before " - "; the first is the main one),
+//               "icon" (an exe like "EXCEL.EXE" or an app name, to borrow its icon), "glyph" (fallback icon), "commands"
+//  Command:     "name", "aliases", "description",
+//               "arg"          label for the argument (shown as a hint)
+//               "argRequired"  true if it needs one (Enter then waits for you to type/pick it)
+//               "argDefault"   used when nothing is typed (placeholders allowed)
+//               "suggest"      argument suggestions: "office-recent:Excel", "folders:{projects}", "files:{downloads}",
+//                              "vscode-recent", "bookmarks:chrome" / "bookmarks:edge"
+//               "confirm"      true = press Enter twice
+//               "action"       what to do:
+//    { "type": "run", "file": "code", "args": ["--new-window", "{projects}\\{arg:file}"],
+//      "createFolder": "{projects}\\{arg:file}", "cwd": "...", "admin": false, "showWindow": false }
+//    { "type": "open", "target": "https://example.com/search?q={arg:url}" }      (URLs, files, folders, shell: and ms-settings: links)
+//    { "type": "powershell", "script": "Write-Host $env:LUMEN_ARG", "showWindow": false }
+//          env vars: LUMEN_ARG, LUMEN_PROJECTS, LUMEN_DOCUMENTS, LUMEN_DESKTOP, LUMEN_DOWNLOADS, LUMEN_OFFICE_FOLDER
+//    { "type": "keys", "process": "notepad", "launch": "notepad.exe", "keys": "^n" }   (SendKeys syntax: ^ Ctrl, % Alt, + Shift)
+//    { "type": "media", "key": "playpause" }    playpause, next, previous, stop, mute, volumeup, volumedown
+//    { "type": "builtin", "name": "office-new", "app": "Excel" }
+//
+//  Placeholders: {arg} {arg:url} {arg:file} {projects} {documents} {desktop} {downloads} {pictures} {home}
+//                {officeFolder} {date} {time} {datetime} {clipboard}   and %ENVIRONMENT% variables.
+// ─────────────────────────────────────────────────────────────────────────────
+{
+  "apps": [
+    {
+      "name": "Excel", "match": ["excel", "microsoft excel", "xl"], "icon": "EXCEL.EXE",
+      "commands": [
+        { "name": "new", "aliases": ["create", "blank", "sheet", "workbook", "book"], "arg": "file name (optional)",
+          "description": "New blank workbook — add a name to save it in Documents",
+          "action": { "type": "builtin", "name": "office-new", "app": "Excel" } },
+        { "name": "recent", "aliases": ["open", "last"], "arg": "workbook", "argRequired": true, "suggest": "office-recent:Excel",
+          "description": "Open a recent workbook",
+          "action": { "type": "run", "file": "EXCEL.EXE", "args": ["{arg}"] } },
+        { "name": "add sheet", "aliases": ["worksheet", "add tab"],
+          "description": "Add a worksheet to the workbook you have open",
+          "action": { "type": "builtin", "name": "excel-add-sheet" } }
+      ]
+    },
+    {
+      "name": "Word", "match": ["word", "microsoft word", "winword"], "icon": "WINWORD.EXE",
+      "commands": [
+        { "name": "new", "aliases": ["create", "blank", "doc", "document"], "arg": "file name (optional)",
+          "description": "New blank document — add a name to save it in Documents",
+          "action": { "type": "builtin", "name": "office-new", "app": "Word" } },
+        { "name": "recent", "aliases": ["open", "last"], "arg": "document", "argRequired": true, "suggest": "office-recent:Word",
+          "description": "Open a recent document",
+          "action": { "type": "run", "file": "WINWORD.EXE", "args": ["{arg}"] } }
+      ]
+    },
+    {
+      "name": "PowerPoint", "match": ["powerpoint", "ppt", "powerpnt", "slides"], "icon": "POWERPNT.EXE",
+      "commands": [
+        { "name": "new", "aliases": ["create", "blank", "deck", "presentation"], "arg": "file name (optional)",
+          "description": "New presentation — add a name to save it in Documents",
+          "action": { "type": "builtin", "name": "office-new", "app": "PowerPoint" } },
+        { "name": "recent", "aliases": ["open", "last"], "arg": "presentation", "argRequired": true, "suggest": "office-recent:PowerPoint",
+          "description": "Open a recent presentation",
+          "action": { "type": "run", "file": "POWERPNT.EXE", "args": ["{arg}"] } }
+      ]
+    },
+    {
+      "name": "Outlook", "match": ["outlook", "mail", "email", "outlook (classic)", "outlook (new)"], "icon": "OUTLOOK.EXE",
+      "commands": [
+        { "name": "email", "aliases": ["new", "compose", "write", "send"], "arg": "to (optional)",
+          "description": "Write a new email (in your default mail app)",
+          "action": { "type": "open", "target": "mailto:{arg}" } },
+        { "name": "meeting", "aliases": ["event", "appointment"], "description": "New calendar event (classic Outlook)",
+          "action": { "type": "run", "file": "OUTLOOK.EXE", "args": ["/c", "ipm.appointment"] } },
+        { "name": "task", "aliases": ["todo"], "description": "New task (classic Outlook)",
+          "action": { "type": "run", "file": "OUTLOOK.EXE", "args": ["/c", "ipm.task"] } },
+        { "name": "contact", "description": "New contact (classic Outlook)",
+          "action": { "type": "run", "file": "OUTLOOK.EXE", "args": ["/c", "ipm.contact"] } },
+        { "name": "calendar", "description": "Open the calendar (classic Outlook)",
+          "action": { "type": "run", "file": "OUTLOOK.EXE", "args": ["/select", "outlook:calendar"] } },
+        { "name": "inbox", "description": "Open the inbox (classic Outlook)",
+          "action": { "type": "run", "file": "OUTLOOK.EXE", "args": ["/select", "outlook:inbox"] } }
+      ]
+    },
+    {
+      "name": "Visual Studio Code", "match": ["code", "vscode", "vs code", "visual studio code"], "icon": "Code.exe",
+      "commands": [
+        { "name": "code", "aliases": ["session", "start", "new session", "new project"], "arg": "project name (optional)",
+          "argDefault": "session-{datetime}",
+          "description": "Start a new coding session: a fresh folder in your projects folder, opened in a new window",
+          "action": { "type": "run", "file": "code", "args": ["--new-window", "{projects}\\{arg:file}"], "createFolder": "{projects}\\{arg:file}" } },
+        { "name": "open", "aliases": ["project", "projects", "recent"], "arg": "project", "argRequired": true, "suggest": "vscode-recent",
+          "description": "Open a project folder",
+          "action": { "type": "run", "file": "code", "args": ["{arg}"] } },
+        { "name": "new", "aliases": ["window", "blank", "empty"], "description": "New empty window",
+          "action": { "type": "run", "file": "code", "args": ["--new-window"] } },
+        { "name": "scratch", "aliases": ["file", "note", "temp"], "arg": "file name (optional)", "argDefault": "scratch-{datetime}.md",
+          "description": "New scratch file in Documents\\Scratch",
+          "action": { "type": "run", "file": "code", "args": ["{documents}\\Scratch\\{arg:file}"], "createFolder": "{documents}\\Scratch" } },
+        { "name": "settings", "aliases": ["preferences", "config"], "description": "Open VS Code's settings.json",
+          "action": { "type": "run", "file": "code", "args": ["%APPDATA%\\Code\\User\\settings.json"] } },
+        { "name": "folder", "aliases": ["explorer", "projects folder"], "description": "Show your projects folder in File Explorer",
+          "action": { "type": "open", "target": "{projects}" } }
+      ]
+    },
+    {
+      "name": "Google Chrome", "match": ["chrome", "google chrome"], "icon": "chrome.exe",
+      "commands": [
+        { "name": "incognito", "aliases": ["private", "secret"], "arg": "url (optional)", "description": "New incognito window",
+          "action": { "type": "run", "file": "chrome.exe", "args": ["--incognito", "{arg}"] } },
+        { "name": "new", "aliases": ["window"], "arg": "url (optional)", "description": "New window",
+          "action": { "type": "run", "file": "chrome.exe", "args": ["--new-window", "{arg}"] } },
+        { "name": "bookmarks", "aliases": ["bookmark", "bm"], "arg": "bookmark", "argRequired": true, "suggest": "bookmarks:chrome",
+          "description": "Open a bookmark", "action": { "type": "run", "file": "chrome.exe", "args": ["{arg}"] } },
+        { "name": "history", "description": "Browsing history", "action": { "type": "run", "file": "chrome.exe", "args": ["chrome://history"] } },
+        { "name": "downloads", "description": "Downloads page", "action": { "type": "run", "file": "chrome.exe", "args": ["chrome://downloads"] } },
+        { "name": "extensions", "description": "Manage extensions", "action": { "type": "run", "file": "chrome.exe", "args": ["chrome://extensions"] } },
+        { "name": "settings", "description": "Chrome settings", "action": { "type": "run", "file": "chrome.exe", "args": ["chrome://settings"] } }
+      ]
+    },
+    {
+      "name": "Microsoft Edge", "match": ["edge", "microsoft edge", "msedge"], "icon": "msedge.exe",
+      "commands": [
+        { "name": "inprivate", "aliases": ["private", "incognito"], "arg": "url (optional)", "description": "New InPrivate window",
+          "action": { "type": "run", "file": "msedge.exe", "args": ["--inprivate", "{arg}"] } },
+        { "name": "new", "aliases": ["window"], "arg": "url (optional)", "description": "New window",
+          "action": { "type": "run", "file": "msedge.exe", "args": ["--new-window", "{arg}"] } },
+        { "name": "bookmarks", "aliases": ["favorites", "bookmark", "bm"], "arg": "favorite", "argRequired": true, "suggest": "bookmarks:edge",
+          "description": "Open a favorite", "action": { "type": "run", "file": "msedge.exe", "args": ["{arg}"] } },
+        { "name": "history", "description": "Browsing history", "action": { "type": "run", "file": "msedge.exe", "args": ["edge://history"] } },
+        { "name": "downloads", "description": "Downloads page", "action": { "type": "run", "file": "msedge.exe", "args": ["edge://downloads"] } },
+        { "name": "settings", "description": "Edge settings", "action": { "type": "run", "file": "msedge.exe", "args": ["edge://settings"] } }
+      ]
+    },
+    {
+      "name": "File Explorer", "match": ["explorer", "files", "file explorer", "finder"], "icon": "File Explorer",
+      "commands": [
+        { "name": "downloads", "description": "Open Downloads", "action": { "type": "open", "target": "{downloads}" } },
+        { "name": "documents", "aliases": ["docs"], "description": "Open Documents", "action": { "type": "open", "target": "{documents}" } },
+        { "name": "desktop", "description": "Open Desktop", "action": { "type": "open", "target": "{desktop}" } },
+        { "name": "pictures", "aliases": ["photos"], "description": "Open Pictures", "action": { "type": "open", "target": "{pictures}" } },
+        { "name": "home", "aliases": ["user"], "description": "Open your user folder", "action": { "type": "open", "target": "{home}" } },
+        { "name": "projects", "description": "Open your projects folder", "action": { "type": "open", "target": "{projects}" } },
+        { "name": "recycle bin", "aliases": ["trash", "bin"], "description": "Open the Recycle Bin", "action": { "type": "open", "target": "shell:RecycleBinFolder" } },
+        { "name": "this pc", "aliases": ["computer", "drives"], "description": "Open This PC", "action": { "type": "open", "target": "shell:MyComputerFolder" } },
+        { "name": "appdata", "description": "Open %APPDATA%", "action": { "type": "open", "target": "%APPDATA%" } },
+        { "name": "temp", "description": "Open the temp folder", "action": { "type": "open", "target": "%TEMP%" } },
+        { "name": "startup", "description": "Open the Startup folder", "action": { "type": "open", "target": "shell:startup" } },
+        { "name": "new folder", "aliases": ["mkdir"], "arg": "name (optional)", "argDefault": "New folder {datetime}",
+          "description": "Create a folder on the Desktop and open it",
+          "action": { "type": "run", "file": "explorer.exe", "args": ["{desktop}\\{arg:file}"], "createFolder": "{desktop}\\{arg:file}" } }
+      ]
+    },
+    {
+      "name": "Terminal", "match": ["terminal", "wt", "windows terminal"], "icon": "Terminal",
+      "commands": [
+        { "name": "admin", "aliases": ["elevated", "sudo", "administrator"], "description": "Open Terminal as administrator",
+          "action": { "type": "run", "file": "wt.exe", "admin": true } },
+        { "name": "powershell", "aliases": ["ps"], "description": "New PowerShell tab",
+          "action": { "type": "run", "file": "wt.exe", "args": ["-p", "Windows PowerShell"] } },
+        { "name": "cmd", "aliases": ["command prompt"], "description": "New Command Prompt tab",
+          "action": { "type": "run", "file": "wt.exe", "args": ["-p", "Command Prompt"] } },
+        { "name": "here", "aliases": ["in", "dir", "at"], "arg": "folder", "argDefault": "{home}", "suggest": "folders:{projects}",
+          "description": "Open Terminal in a folder", "action": { "type": "run", "file": "wt.exe", "args": ["-d", "{arg}"] } }
+      ]
+    },
+    {
+      "name": "PowerShell", "match": ["powershell", "windows powershell", "ps"], "icon": "powershell.exe",
+      "commands": [
+        { "name": "admin", "aliases": ["elevated", "sudo"], "description": "PowerShell as administrator",
+          "action": { "type": "run", "file": "powershell.exe", "admin": true } }
+      ]
+    },
+    {
+      "name": "Command Prompt", "match": ["cmd", "command prompt"], "icon": "cmd.exe",
+      "commands": [
+        { "name": "admin", "aliases": ["elevated", "sudo"], "description": "Command Prompt as administrator",
+          "action": { "type": "run", "file": "cmd.exe", "admin": true } }
+      ]
+    },
+    {
+      "name": "Notepad", "match": ["notepad"], "icon": "Notepad",
+      "commands": [
+        { "name": "new", "aliases": ["tab"], "description": "New tab (starts Notepad if needed)",
+          "action": { "type": "keys", "process": "Notepad", "launch": "notepad.exe", "keys": "^n" } },
+        { "name": "jot", "aliases": ["note", "append", "add"], "arg": "text", "argRequired": true,
+          "description": "Add a line to Documents\\Quick Notes.txt without opening anything",
+          "action": { "type": "powershell", "script": [
+            "$f = Join-Path $env:LUMEN_DOCUMENTS 'Quick Notes.txt'",
+            "Add-Content -LiteralPath $f -Value ((Get-Date -Format 'yyyy-MM-dd HH:mm') + '  ' + $env:LUMEN_ARG) -Encoding UTF8"
+          ] } },
+        { "name": "notes", "aliases": ["quick notes"], "description": "Open Quick Notes.txt",
+          "action": { "type": "open", "target": "{documents}\\Quick Notes.txt" } }
+      ]
+    },
+    {
+      "name": "Snipping Tool", "match": ["snip", "snipping tool", "screenshot"], "icon": "Snipping Tool",
+      "commands": [
+        { "name": "region", "aliases": ["snip", "area", "new", "capture"], "description": "Snip part of the screen",
+          "action": { "type": "open", "target": "ms-screenclip:" } },
+        { "name": "screenshots", "aliases": ["folder"], "description": "Open the Screenshots folder",
+          "action": { "type": "open", "target": "{pictures}\\Screenshots" } }
+      ]
+    },
+    {
+      "name": "Media", "match": ["media", "music", "spotify", "player"], "glyph": "",
+      "commands": [
+        { "name": "play", "aliases": ["pause", "toggle", "playpause"], "description": "Play / pause whatever is playing", "action": { "type": "media", "key": "playpause" } },
+        { "name": "next", "aliases": ["skip"], "description": "Next track", "action": { "type": "media", "key": "next" } },
+        { "name": "previous", "aliases": ["prev", "back"], "description": "Previous track", "action": { "type": "media", "key": "previous" } },
+        { "name": "mute", "aliases": ["unmute"], "description": "Mute / unmute", "action": { "type": "media", "key": "mute" } },
+        { "name": "volume up", "aliases": ["louder", "up"], "description": "Volume up", "action": { "type": "media", "key": "volumeup" } },
+        { "name": "volume down", "aliases": ["quieter", "down"], "description": "Volume down", "action": { "type": "media", "key": "volumedown" } }
+      ]
+    },
+    {
+      "name": "Lumen", "match": ["lumen"], "glyph": "",
+      "commands": [
+        { "name": "settings", "aliases": ["preferences", "config"], "description": "Edit Lumen's settings", "action": { "type": "builtin", "name": "lumen-settings" } },
+        { "name": "commands", "aliases": ["edit commands", "add command"], "description": "Edit these app commands", "action": { "type": "builtin", "name": "lumen-commands" } },
+        { "name": "help", "aliases": ["?"], "description": "List every app with commands", "action": { "type": "builtin", "name": "lumen-help" } },
+        { "name": "reindex", "aliases": ["rebuild", "refresh"], "description": "Re-scan installed apps", "action": { "type": "builtin", "name": "lumen-reindex" } },
+        { "name": "startup", "aliases": ["autostart", "start with windows"], "description": "Turn start-with-Windows on or off", "action": { "type": "builtin", "name": "lumen-startup" } },
+        { "name": "folder", "description": "Open Lumen's config folder", "action": { "type": "builtin", "name": "lumen-folder" } },
+        { "name": "log", "description": "Open Lumen's log", "action": { "type": "builtin", "name": "lumen-log" } },
+        { "name": "reset commands", "confirm": true, "description": "Restore this file to the defaults (your copy is backed up)", "action": { "type": "builtin", "name": "lumen-reset-commands" } },
+        { "name": "quit", "aliases": ["exit"], "description": "Quit Lumen", "action": { "type": "builtin", "name": "lumen-quit" } }
+      ]
+    }
+  ],
+
+  // Web shortcuts: type the keyword, a space, then your search — e.g. "yt lofi beats".
+  "web": [
+    { "keyword": "g", "name": "Google", "url": "https://www.google.com/search?q={query}" },
+    { "keyword": "img", "name": "Google Images", "url": "https://www.google.com/search?tbm=isch&q={query}" },
+    { "keyword": "yt", "name": "YouTube", "url": "https://www.youtube.com/results?search_query={query}" },
+    { "keyword": "gh", "name": "GitHub", "url": "https://github.com/search?q={query}" },
+    { "keyword": "wiki", "name": "Wikipedia", "url": "https://en.wikipedia.org/w/index.php?search={query}" },
+    { "keyword": "maps", "name": "Google Maps", "url": "https://www.google.com/maps/search/{query}" },
+    { "keyword": "so", "name": "Stack Overflow", "url": "https://stackoverflow.com/search?q={query}" },
+    { "keyword": "amz", "name": "Amazon", "url": "https://www.amazon.com/s?k={query}" },
+    { "keyword": "tr", "name": "Google Translate", "url": "https://translate.google.com/?sl=auto&tl=en&text={query}" }
+  ],
+
+  // Extra names you can type to find an app (the key must match the app's name in Start).
+  "appAliases": {
+    "Visual Studio Code": ["vscode", "vs code"],
+    "File Explorer": ["explorer", "finder", "files"],
+    "Settings": ["preferences", "system settings", "control center"],
+    "Terminal": ["windows terminal", "console", "shell", "wt"],
+    "Command Prompt": ["cmd"],
+    "Windows PowerShell": ["powershell"],
+    "Task Manager": ["activity monitor", "processes", "taskmgr"],
+    "Notepad": ["textedit", "text editor"],
+    "Snipping Tool": ["screenshot", "screen capture", "snip"],
+    "Calculator": ["calc"],
+    "Microsoft Store": ["app store", "store"],
+    "Microsoft Edge": ["edge", "browser"],
+    "Google Chrome": ["browser"],
+    "Excel": ["spreadsheet", "xls"],
+    "Word": ["document", "doc"],
+    "PowerPoint": ["slides", "presentation", "keynote"],
+    "Outlook (classic)": ["mail", "email"],
+    "Outlook (new)": ["mail", "email"],
+    "Photos": ["images", "pictures", "preview"],
+    "Clock": ["timer", "alarm", "stopwatch"],
+    "Paint": ["mspaint", "draw"],
+    "Registry Editor": ["regedit"]
+  }
+}

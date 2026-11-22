@@ -1,0 +1,50 @@
+// Lumen settings. Saved changes apply immediately — no restart needed.
+// Comments (//) and trailing commas are allowed.
+{
+  // Shortcut that opens Lumen. Examples: "Ctrl+Space", "Alt+Space", "Ctrl+Shift+Space", "Ctrl+Alt+K".
+  // Note: while Lumen runs it owns this shortcut everywhere — e.g. VS Code's Ctrl+Space (suggestions)
+  // and Excel's Ctrl+Space (select column) stop working unless you list those apps in passThroughApps.
+  "hotkey": "Ctrl+Space",
+
+  // Apps that should keep receiving the hotkey instead of opening Lumen, e.g. ["Code.exe", "EXCEL.EXE"].
+  "passThroughApps": [],
+
+  // "auto" follows Windows' light/dark mode. Or "dark" / "light".
+  "theme": "auto",
+  // "auto" uses your Windows accent color, or a color like "#0A84FF".
+  "accentColor": "auto",
+
+  "width": 760,
+  "showPreview": true,          // the details pane on the right
+  "hideOnFocusLoss": true,      // close when you click somewhere else
+  "rememberLastQuery": true,    // reopen with the last search selected, like Spotlight
+  "showRecentWhenEmpty": false, // show your most-used items before you type (Down arrow always shows them)
+
+  // Files and folders come from the Windows Search index (the one Start uses).
+  "searchFiles": true,
+  "searchFileContents": true,   // also find documents by the words inside them
+  "maxFileResults": 12,
+  "fileSearchExclude": ["\\AppData\\", "\\node_modules\\", "\\.git\\", "\\$Recycle.Bin\\", "\\.vscode\\extensions\\"],
+
+  // The fallback "Search the web" row. {query} is replaced with what you typed.
+  "webSearchName": "Google",
+  "webSearchUrl": "https://www.google.com/search?q={query}",
+
+  // Where "code - code" starts new coding sessions. Empty = auto (~\Projects, ~\source\repos, ~\Code, ...).
+  "projectsFolder": "",
+  // Where "excel - new budget" / "word - new notes" save named files. Empty = Documents.
+  "officeSaveFolder": "",
+
+  // Shell for "> command" rows: "powershell", "pwsh" or "cmd".
+  "terminalShell": "powershell",
+  // Editor for "lumen - settings" / "lumen - commands". Empty = VS Code if installed, else Notepad.
+  "editor": "",
+
+  // Learning new apps: when an app is installed, Lumen asks Claude (with web search) for the app's most common
+  // features and saves them as commands in commands.generated.json. Needs a Claude API key from
+  // https://platform.claude.com - put it here or in the ANTHROPIC_API_KEY environment variable.
+  // Each lookup is a paid API call (typically a few cents). Run one any time with "lumen - learn <app>".
+  "anthropicApiKey": "",
+  "autoLearnNewApps": true,
+  "learnModel": "claude-opus-5-5"
+}
