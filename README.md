@@ -1,3 +1,5 @@
+
+
 # Lumen — Spotlight for Windows
 
 Press **Ctrl+Space** anywhere, type, press **Enter**. Lumen is one small `Lumen.exe` built on the .NET Framework that
